@@ -22,7 +22,9 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-#include "typedefDataType.h"
+#include "errorHandling.h"
+
+
 
 
 #endif /* HEADERMAIN_H_ */
