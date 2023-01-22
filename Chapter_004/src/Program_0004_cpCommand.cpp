@@ -9,84 +9,71 @@ using namespace std;
 
 int main (int argc, char *argv[]) {
 
-    int32_t lInputFileDescriptor_i32 = 0, lOutputFileDescriptor_i32 = 0, lOpenFlag_i32 = 0;
-    mode_t lFilePermissions;
+    int inputFd, outputFd, openFlags;
+    mode_t filePerms;
+    ssize_t numRead;
+    char buf[BUF_SIZE];
 
-
-    if ( argc != 3 ) {
-        /* Enter here if arguments are not equal to 3 */
-        cout << " cp: missing destination file operand after '" << argv[1] << "'" << endl;
-        cout << "Try 'cp --help' for more information." << endl;
-        usageErr("%s Old file new file \n", argv[0]);
-
+    if (argc != 3 ) {
+        usageErr("%s old-file new-file\n", argv[0]);
     }
+    else {
+        ; /* MISRA C++ STANDARD */
+    }
+    /* Open input and output files */
+    inputFd = open(argv[1], O_RDONLY);
 
-    lInputFileDescriptor_i32 = open ( argv[1], O_RDONLY );
-
-
-    if ( lInputFileDescriptor_i32 == -1 ) {
-
-        /* Enters here if any error is encountered during the file opening */
-        errExit ("opening file %s ", argv[1]);
+    if (inputFd == -1) {
+        errExit("opening file %s", argv[1]);
     }
     else {
         ; /* MISRA C++ STANDARD */
     }
 
-    /* Enters here if the file is opened successfully */
-    lOpenFlag_i32		= 	O_CREAT | O_WRONLY | O_TRUNC ;
+    openFlags = O_CREAT | O_WRONLY | O_TRUNC;
+    filePerms = S_IRUSR | S_IWUSR | S_IRGRP |
+                S_IWGRP | S_IROTH | S_IWOTH; /* rw-rw-rw- */
 
-    lFilePermissions 	= 	S_IRUSR | S_IWUSR | S_IRGRP | \
-                            S_IROTH | S_IWOTH ;
+    outputFd = open(argv[2], openFlags, filePerms);
 
-    lOutputFileDescriptor_i32 = open ( argv[1], lOpenFlag_i32, lFilePermissions );
-
-    if (lOutputFileDescriptor_i32 == -1 ){
-
-        /* Enters here if any error is encountered during the file opening */
+    if (outputFd == -1) {
         errExit("opening file %s", argv[2]);
-
     }
     else {
-        ; /* MISRA C++ Standard */
+        ; /* MISRA C++ STANDARD */
     }
 
-    ssize_t lNumberOfBytesRead;
-    int8_t lBuffer_i8[BUF_SIZE];
+    /* Transfer data until we encounter end of input or an error */
 
-    while ( ( lNumberOfBytesRead = read( lInputFileDescriptor_i32, lBuffer_i8 , BUF_SIZE) ) > 0) {
-
-        if ( write (lOutputFileDescriptor_i32 , lBuffer_i8, lNumberOfBytesRead ) != lNumberOfBytesRead ){
-                       fatal(" Couldn't write the whole buffer ");
+    while ((numRead = read(inputFd, buf, BUF_SIZE)) > 0) {
+        if (write(outputFd, buf, numRead) != numRead) {
+            fatal("couldn't write whole buffer");
+        }
+        else {
+            ; /* MISRA C++ STANDARD */
         }
     }
 
-    if (lNumberOfBytesRead == -1 ) {
-
+    if (numRead == -1) {
         errExit("read");
     }
     else {
-        ; /* MISRA C++ Standard */
+        ; /* MISRA C++ STANDARD */
     }
 
-    if (close (lInputFileDescriptor_i32) == -1 ) {
-
+    if (close(inputFd) == -1) {
         errExit("close input");
     }
     else {
-        ;
+        ; /* MISRA C++ STANDARD */
     }
 
-    if (close (lOutputFileDescriptor_i32) == -1 ) {
-
+    if (close(outputFd) == -1) {
         errExit("close output");
     }
     else {
-        ;
+        ; /* MISRA C++ STANDARD */
     }
 
     exit(EXIT_SUCCESS);
-    
-    return 0;
-
 }
